@@ -1,5 +1,7 @@
 {% include 'header.html' %}
 
+ 
+
 <main role="main">
 
     <div class="container col-auto">
@@ -13,20 +15,35 @@
                     <th scope="col">Type</th>
                     <th scope="col">Sitting Capacity</th>
                     <th scope="col">Total Registered</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Delete Reason</th>
                     <th scope="col">Edit/Delete</th>
                 </tr>
             </thead>
             {% for vehicle in vehicles %}
                 <tr>
-                    <td><a class="btn-link" href="#">{{vehicle.model_id}}</a></td>
-                    <td>{{vehicle.vendor}}</td>
-                    <td>{{vehicle.model}}</td>
-                    <td>{{vehicle.type}}</td>
-                    <td>{{vehicle.capacity}}</td>
+                    <td><a class="btn-link" href="#">{{ vehicle.model_id }}</a></td>
+                    <td>{{ vehicle.vendor }}</td>
+                    <td>{{ vehicle.model }}</td>
+                    <td>{{ vehicle.type }}</td>
+                    <td>{{ vehicle.capacity }}</td>
                     <td>0</td>
+                    <td>{% if vehicle.is_voided %}Voided{% else %}Active{% endif %}</td>
+                    <td>{{ vehicle.voided_reason }}</td>
                     <td>
-                        <button class="btn btn-warning">Edit</button>
-                        <button class="btn btn-danger" disabled="disabled">Delete</button>
+                        <a class="btn btn-warning">Edit</a>
+                        {% if vehicle.is_voided %}
+                            <form action="{% url 'unvoid_vehicle_model' vehicle.model_id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Enable</button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'void_vehicle_model' vehicle.model_id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="text" name="void_reason" placeholder="Enter reason" required>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

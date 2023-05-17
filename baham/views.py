@@ -1,5 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.template import loader
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.urls import reverse
 
 from baham.enum_types import VehicleType
@@ -54,3 +56,28 @@ def save_vehicle(request):
     vehicleModel = VehicleModel(vendor=_vendor, model=_model, type=_type, capacity=_capacity)
     vehicleModel.save()
     return HttpResponseRedirect(reverse('vehicles'))
+
+
+
+def void_vehicle_model(request, model_id):
+    vehicle_model = get_object_or_404(VehicleModel, model_id=model_id)
+
+    if request.method == 'POST':
+        void_reason = request.POST.get('void_reason')
+
+        if not vehicle_model.is_voided:
+            vehicle_model.void(void_reason)
+
+    
+    return HttpResponseRedirect(reverse('vehicles'))
+
+def unvoid_vehicle_model(request, model_id):
+    vehicle_model = get_object_or_404(VehicleModel, model_id=model_id)
+
+    if request.method == 'POST':
+        if vehicle_model.is_voided:
+            vehicle_model.unvoid()
+
+   
+    return HttpResponseRedirect(reverse('vehicles'))
+
